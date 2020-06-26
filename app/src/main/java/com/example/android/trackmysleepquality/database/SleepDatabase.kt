@@ -15,3 +15,44 @@
  */
 
 package com.example.android.trackmysleepquality.database
+
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+
+@Database (entities = arrayOf(SleepNight::class), version = 1, exportSchema = false)
+abstract class SleepDatabase: RoomDatabase() {
+
+    //We don't need to instantiate this class, just need to access it's methods, so declare
+    //the Dao as a value, then get it with the companion object, which allows clients to access
+    //methods for creating the database without instantiating the class. The only purpose of the class
+    //is to provide a database.
+    abstract val SleepDatabaseDao: SleepDatabaseDao
+
+    companion object {
+
+        //Volatile variables are never cached and are kept in main memory. This makes sure the
+        //value of the Instance variable is always up to date, and is the same for all threads
+        @Volatile
+        private var INSTANCE: SleepDatabase? = null
+
+        fun getInstance(context: Context): SleepDatabase {
+            //Wrap code in synchronized to be sure only one thread of execution can enter the
+            //block at a time, preventing the database from being initialized more than once
+            synchronized(this) {
+                var instance = INSTANCE
+                if (instance == null) {
+                    instance = Room.databaseBuilder(
+                            context.applicationContext,
+                            SleepDatabase::class.java,
+                            "sleep_history_database")
+                            .fallbackToDestructiveMigration()
+                            .build()
+                    INSTANCE = instance
+                }
+                return instance
+            }
+        }
+    }
+}
