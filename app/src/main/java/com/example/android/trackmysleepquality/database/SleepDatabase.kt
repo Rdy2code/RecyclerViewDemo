@@ -28,7 +28,7 @@ abstract class SleepDatabase: RoomDatabase() {
     //the Dao as a value, then get it with the companion object, which allows clients to access
     //methods for creating the database without instantiating the class. The only purpose of the class
     //is to provide a database.
-    abstract val SleepDatabaseDao: SleepDatabaseDao
+    abstract val sleepDatabaseDao: SleepDatabaseDao
 
     companion object {
 
