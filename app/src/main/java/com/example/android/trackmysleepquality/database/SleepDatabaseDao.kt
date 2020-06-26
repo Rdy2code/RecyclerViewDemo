@@ -16,7 +16,33 @@
 
 package com.example.android.trackmysleepquality.database
 
-import androidx.room.Dao
+import androidx.lifecycle.LiveData
+import androidx.room.*
 
+
+//Map kotlin functions to SQLite methods
 @Dao
-interface SleepDatabaseDao
+interface SleepDatabaseDao {
+
+    @Insert (onConflict = OnConflictStrategy.REPLACE)
+    fun insert (night: SleepNight)
+
+    @Update
+    fun update (night: SleepNight)
+
+    //The query is supplied as a string parameter to the annotation. This says select all columns from
+    //the table where the nightId matches the key argument
+    @Query ("SELECT * FROM daily_sleep_quality_table WHERE nightId = :key")
+    fun get (key: Long): SleepNight?
+
+    @Query ("DELETE FROM daily_sleep_quality_table")
+    fun clear()
+
+    //Make the SleepNight object returned by the function nullable so the function can handle the case
+    //where the table is empty
+    @Query ("SELECT * FROM daily_sleep_quality_table ORDER BY nightId DESC LIMIT 1")
+    fun getTonight(): SleepNight?
+
+    @Query("SELECT * FROM daily_sleep_quality_table ORDER BY nightId DESC")
+    fun getAllNights(): LiveData<List<SleepNight>>
+}
