@@ -45,28 +45,10 @@ class SleepNightAdapter: androidx.recyclerview.widget.ListAdapter<SleepNight, Sl
             val binding: ListItemBinding): RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: SleepNight) {
-            val res = binding.root.resources
-            binding.sleepLength.text = convertDurationToFormatted(
-                    item.startTimeMilli,
-                    item.endTimeMilli,
-                    res)
-            binding.qualityString.text = convertNumericQualityToString(item.sleepQuality, res)
-            binding.qualityImage.setImageResource(
-                    when (item.sleepQuality) {
-                        0 -> R.drawable.ic_sleep_0
-                        1 -> R.drawable.ic_sleep_1
-                        2 -> R.drawable.ic_sleep_2
-                        3 -> R.drawable.ic_sleep_3
-                        4 -> R.drawable.ic_sleep_4
-                        5 -> R.drawable.ic_sleep_5
-                        else -> R.drawable.ic_sleep_active
-                    })
-            if (item.sleepQuality <= 1) {
-                binding.qualityImage.setBackgroundColor(Color.RED)
-            } else {
-                binding.qualityImage.setBackgroundColor(Color.BLACK)
-            }
+            binding.sleep = item
+            binding.executePendingBindings()
         }
+
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
                 //Get a reference to a LayoutInflater
