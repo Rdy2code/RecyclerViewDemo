@@ -2,51 +2,56 @@ package com.example.android.trackmysleepquality.sleeptracker
 
 import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.trackmysleepquality.R
 import com.example.android.trackmysleepquality.convertDurationToFormatted
 import com.example.android.trackmysleepquality.convertNumericQualityToString
 import com.example.android.trackmysleepquality.database.SleepNight
+import com.example.android.trackmysleepquality.databinding.ListItemBinding
 
-class SleepNightAdapter: RecyclerView.Adapter<SleepNightAdapter.ViewHolder>() {
-
-    var data = listOf<SleepNight>()
-        set(value) {
-        field = value
-        notifyDataSetChanged()
-    }
+//Change this class definition to extend ListAdapter. With ListAdapter we no longer need
+//getItemCount, because ListAdapter calculates this for us.
+class SleepNightAdapter: androidx.recyclerview.widget.ListAdapter<SleepNight, SleepNightAdapter.ViewHolder>(SleepNightDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent)
     }
 
-    override fun getItemCount(): Int {
-        return data.size
-    }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = data[position]
+        val item = getItem(position)
         holder.bind(item)
     }
 
-    class ViewHolder private constructor (itemView: View): RecyclerView.ViewHolder(itemView) {
-        //Get a reference to the views in the list item layout
-        val qualityImage: ImageView = itemView.findViewById(R.id.quality_image)
-        val sleepLength: TextView = itemView.findViewById(R.id.sleep_length)
-        val quality: TextView = itemView.findViewById(R.id.quality_string)
+    /**
+     * This class calculates what items in the list have changed, This class is part of RecyclerView.
+     */
+    class SleepNightDiffCallback: DiffUtil.ItemCallback<SleepNight>() {
+
+        override fun areItemsTheSame(oldItem: SleepNight, newItem: SleepNight): Boolean {
+            return oldItem.nightId == newItem.nightId
+        }
+
+        override fun areContentsTheSame(oldItem: SleepNight, newItem: SleepNight): Boolean {
+            //We can write the statement this way to check for equality since SleepNight is
+            //is a data class, which automatically defines equals. This tells DiffUtil if the
+            //item has been updated.
+            return oldItem == newItem
+        }
+    }
+
+    class ViewHolder private constructor (
+            val binding: ListItemBinding): RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: SleepNight) {
-            val res = itemView.context.resources
-            sleepLength.text = convertDurationToFormatted(
+            val res = binding.root.resources
+            binding.sleepLength.text = convertDurationToFormatted(
                     item.startTimeMilli,
                     item.endTimeMilli,
                     res)
-            quality.text = convertNumericQualityToString(item.sleepQuality, res)
-            qualityImage.setImageResource(
+            binding.qualityString.text = convertNumericQualityToString(item.sleepQuality, res)
+            binding.qualityImage.setImageResource(
                     when (item.sleepQuality) {
                         0 -> R.drawable.ic_sleep_0
                         1 -> R.drawable.ic_sleep_1
@@ -57,9 +62,9 @@ class SleepNightAdapter: RecyclerView.Adapter<SleepNightAdapter.ViewHolder>() {
                         else -> R.drawable.ic_sleep_active
                     })
             if (item.sleepQuality <= 1) {
-                qualityImage.setBackgroundColor(Color.RED)
+                binding.qualityImage.setBackgroundColor(Color.RED)
             } else {
-                qualityImage.setBackgroundColor(Color.BLACK)
+                binding.qualityImage.setBackgroundColor(Color.BLACK)
             }
         }
         companion object {
@@ -67,8 +72,8 @@ class SleepNightAdapter: RecyclerView.Adapter<SleepNightAdapter.ViewHolder>() {
                 //Get a reference to a LayoutInflater
                 val layoutInflater = LayoutInflater.from(parent.context)
                 //Inflate the List Item layout
-                val view = layoutInflater.inflate(R.layout.list_item, parent, false)
-                return ViewHolder(view)
+                val binding = ListItemBinding.inflate(layoutInflater, parent, false)
+                return ViewHolder(binding)
             }
         }
     }
