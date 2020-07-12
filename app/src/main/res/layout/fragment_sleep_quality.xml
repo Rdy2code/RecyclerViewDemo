@@ -23,7 +23,9 @@
      the whole ViewModel, so that we can access the LiveData,
      click handlers, and state variables. -->
     <data>
-
+        <variable
+            name="sleepQualityViewModel"
+            type="com.example.android.trackmysleepquality.sleepquality.SleepQualityViewModel" />
     </data>
 
     <!-- Start of the visible fragment layout using ConstraintLayout -->
@@ -47,9 +49,10 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
+            android:onClick="@{()-> sleepQualityViewModel.onSetSleepQuality(0)}"
             android:id="@+id/quality_zero_image"
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
+            android:layout_width="@dimen/icon_width"
+            android:layout_height="@dimen/icon_height"
             android:layout_marginStart="@dimen/margin"
             android:layout_marginTop="@dimen/margin"
             android:contentDescription="@string/quality_0"
@@ -59,9 +62,10 @@
             app:srcCompat="@drawable/ic_sleep_0" />
 
         <ImageView
+            android:onClick="@{()-> sleepQualityViewModel.onSetSleepQuality(1)}"
             android:id="@+id/quality_one_image"
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
+            android:layout_width="@dimen/icon_width"
+            android:layout_height="@dimen/icon_height"
             android:contentDescription="@string/quality_1"
             app:layout_constraintBottom_toBottomOf="@+id/quality_zero_image"
             app:layout_constraintEnd_toStartOf="@+id/quality_two_image"
@@ -69,9 +73,10 @@
             app:srcCompat="@drawable/ic_sleep_1" />
 
         <ImageView
+            android:onClick="@{()-> sleepQualityViewModel.onSetSleepQuality(2)}"
             android:id="@+id/quality_two_image"
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
+            android:layout_width="@dimen/icon_width"
+            android:layout_height="@dimen/icon_height"
             android:layout_marginEnd="@dimen/margin"
             android:contentDescription="@string/quality_2"
             app:layout_constraintBottom_toBottomOf="@+id/quality_one_image"
@@ -80,9 +85,10 @@
             app:srcCompat="@drawable/ic_sleep_2" />
 
         <ImageView
+            android:onClick="@{()-> sleepQualityViewModel.onSetSleepQuality(3)}"
             android:id="@+id/quality_three_image"
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
+            android:layout_width="@dimen/icon_width"
+            android:layout_height="@dimen/icon_height"
             android:layout_marginStart="@dimen/margin"
             android:layout_marginTop="@dimen/margin"
             android:layout_marginBottom="@dimen/margin"
@@ -95,9 +101,10 @@
             app:srcCompat="@drawable/ic_sleep_3" />
 
         <ImageView
+            android:onClick="@{()-> sleepQualityViewModel.onSetSleepQuality(4)}"
             android:id="@+id/quality_four_image"
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
+            android:layout_width="@dimen/icon_width"
+            android:layout_height="@dimen/icon_height"
             android:contentDescription="@string/quality_4"
             app:layout_constraintBottom_toBottomOf="@+id/quality_three_image"
             app:layout_constraintEnd_toStartOf="@+id/quality_five_image"
@@ -106,9 +113,10 @@
             app:srcCompat="@drawable/ic_sleep_4" />
 
         <ImageView
+            android:onClick="@{()-> sleepQualityViewModel.onSetSleepQuality(5)}"
             android:id="@+id/quality_five_image"
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
+            android:layout_width="@dimen/icon_width"
+            android:layout_height="@dimen/icon_height"
             android:layout_marginEnd="@dimen/margin"
             android:contentDescription="@string/quality_5"
             app:layout_constraintBottom_toBottomOf="@+id/quality_four_image"

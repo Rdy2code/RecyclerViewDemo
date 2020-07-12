@@ -19,6 +19,7 @@ package com.example.android.trackmysleepquality.sleeptracker
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.example.android.trackmysleepquality.database.SleepDatabaseDao
@@ -33,8 +34,20 @@ import kotlinx.coroutines.*
  *
  * Use a transformation map everytime nights receives new data from the database
  */
-class SleepTrackerViewModel(val database: SleepDatabaseDao, application: Application)
+class SleepTrackerViewModel(
+        val database: SleepDatabaseDao,
+        application: Application)
     : AndroidViewModel(application) {
+
+    //region Backing Properties
+    //This is a SleepNight object wrapped in LiveData. This monitors the change to an object
+    //Any change to the values in the object will be observed
+    private val _navigateToSleepQuality = MutableLiveData<SleepNight>()
+    val navigateToSleepQuality: LiveData<SleepNight>
+        get() {
+            return _navigateToSleepQuality
+        }
+    //endregion
 
     //Define a Job.
     //This allows you to cancel all coroutines started by this ViewModel when the ViewModel is
@@ -50,11 +63,29 @@ class SleepTrackerViewModel(val database: SleepDatabaseDao, application: Applica
 
     //The Dao returns a LiveData object, so this is automatically run on a background thread by Room
     //Therefore we do not need to set this up in a coroutine
-    private val nights = database.getAllNights()
+    val nights = database.getAllNights()
 
     val nightsString = Transformations.map(nights) {nights ->
         formatNights(nights, application.resources)
     }
+
+    val startButtonVisible = Transformations.map(tonight) {
+        it == null
+    }
+
+    val stopButtonVisible = Transformations.map(tonight) {
+        it != null
+    }
+
+    val clearButtonVisible = Transformations.map(nights) {
+        it?.isNotEmpty()
+    }
+
+    private var _showSnackBarEvent = MutableLiveData<Boolean>()
+    val showSnackBarEvent: LiveData<Boolean>
+        get() {
+            return _showSnackBarEvent
+        }
 
     //Start a coroutine when the ViewModel is initialized
     init {
@@ -105,6 +136,8 @@ class SleepTrackerViewModel(val database: SleepDatabaseDao, application: Applica
             val oldNight = tonight.value ?: return@launch
             oldNight.endTimeMilli = System.currentTimeMillis()
             update(oldNight)
+            //Update the SleepNight object, which triggers LiveData update, which launches new fragment
+            _navigateToSleepQuality.value = oldNight
         }
     }
 
@@ -118,6 +151,7 @@ class SleepTrackerViewModel(val database: SleepDatabaseDao, application: Applica
         uiScope.launch {
             clear()
             tonight.value = null
+            _showSnackBarEvent.value = true
         }
     }
 
@@ -125,6 +159,14 @@ class SleepTrackerViewModel(val database: SleepDatabaseDao, application: Applica
         withContext(Dispatchers.IO) {
             database.clear()
         }
+    }
+
+    fun doneNavigating() {
+        _navigateToSleepQuality.value = null
+    }
+
+    fun doneShowingSnackBar() {
+        _showSnackBarEvent.value = false
     }
 }
 

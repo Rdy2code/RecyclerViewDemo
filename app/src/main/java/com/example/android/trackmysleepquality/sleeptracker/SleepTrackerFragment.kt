@@ -22,10 +22,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.android.trackmysleepquality.R
 import com.example.android.trackmysleepquality.database.SleepDatabase
+import com.example.android.trackmysleepquality.database.SleepNight
 import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerBinding
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * A fragment with buttons to record start and end times for sleep, which are saved in
@@ -59,6 +63,43 @@ class SleepTrackerFragment : Fragment() {
         binding.setLifecycleOwner(this)
         //Set the ViewModel binding variable to the ViewModel
         binding.sleepTrackerViewModel = sleepTrackerViewModel
+
+
+        //Define the Observer and assign an action that should be triggered when the data inside
+        // the LiveData object changes. If the night object is not null, capture it and perform
+        //these functions on it
+        val observer = Observer<SleepNight> {
+            it?.let {
+            this.findNavController().navigate(
+                    SleepTrackerFragmentDirections
+                            .actionSleepTrackerFragmentToSleepQualityFragment(it.nightId))
+            sleepTrackerViewModel.doneNavigating()
+            }
+        }
+
+        //The snackbar will work, but will not support dismiss unless in a CoordinatorLayout
+        sleepTrackerViewModel.showSnackBarEvent.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                Snackbar.make(
+                        requireActivity().findViewById(android.R.id.content),
+                        getString(R.string.cleared_message),
+                        Snackbar.LENGTH_LONG)
+                        .show()
+                sleepTrackerViewModel.doneShowingSnackBar()
+            }
+        })
+
+        //Connect the LiveData object to the Observer
+        sleepTrackerViewModel.navigateToSleepQuality.observe(viewLifecycleOwner, observer)
+
+        //region Adapter SetUp
+        val adapter = SleepNightAdapter()
+        binding.sleepListRecyclerview.adapter = adapter
+
+        sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
+            it?.let { adapter.data = it }
+        })
+        //endregion
 
         return binding.root
     }
